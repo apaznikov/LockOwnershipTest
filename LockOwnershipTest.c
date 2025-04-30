@@ -12,7 +12,7 @@ pthread_mutex_t Lock2 = PTHREAD_MUTEX_INITIALIZER;
 //   pthread_mutex_unlock(&Lock1);
 // }
 
-int x = 0;
+int GV = 0;
 
 // int foo() {
 //   pthread_mutex_lock(&Lock2);
@@ -24,15 +24,17 @@ int x = 0;
 // }
 
 int simple() {
-  x++;
-  return x;
+  pthread_mutex_lock(&Lock2);
+  GV++;
+  pthread_mutex_unlock(&Lock2);
+  return GV;
 }
 
-void simple_caller2() {
-  pthread_mutex_lock(&Lock2);
-  simple();
-  pthread_mutex_unlock(&Lock2);
-}
+//void simple_caller2() {
+//  pthread_mutex_lock(&Lock2);
+//  simple();
+//  pthread_mutex_unlock(&Lock2);
+//}
 
 // void bar(int x) {
 //   pthread_mutex_lock(&Lock1);

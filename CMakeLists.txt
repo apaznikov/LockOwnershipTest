@@ -75,55 +75,37 @@ add_lock_ownership_target(
 
 ####################################################################################
 
-#add_executable(TSanTest TSanTest.cpp)
-#
-#set_target_properties(TSanTest PROPERTIES CXX_COMPILER ${CLANG_CXX_EXECUTABLE})
-#
-#
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mllvm -debug-only=tsan -mllvm -debug-only=ea")
-#
-#target_compile_options(TSanTest PRIVATE
-#        -O0
-#        -S -emit-llvm
-#        -o TSanTest_instr.ll
-#        -fsanitize=thread
-#        "SHELL:-mllvm -tsan-use-escape-analysis-global"
-#        "SHELL:-mllvm -debug-only=tsan"
-#        -Wno-unused-command-line-argument
-#        -Wno-return-stack-address
-#        -Xclang -disable-O0-optnone
-#)
+function(add_tsan_target target_name source_file)
+        if(${source_file} MATCHES "\\.cpp$")
+                set(compiler ${CLANG_CXX_EXECUTABLE})
+        elseif(${source_file} MATCHES "\\.c$")
+                set(compiler ${CLANG_EXECUTABLE})
+        else()
+                message(FATAL_ERROR "Unsupported source file extension: ${source_file}")
+        endif()
 
-#function(add_tsan_target target_name source_file)
-#        if(${source_file} MATCHES "\\.cpp$")
-#                set(compiler ${CLANG_CXX_EXECUTABLE})
-#        elseif(${source_file} MATCHES "\\.c$")
-#                set(compiler ${CLANG_EXECUTABLE})
-#        else()
-#                message(FATAL_ERROR "Unsupported source file extension: ${source_file}")
-#        endif()
-#
-#
-#        add_executable(${target_name} ${source_file})
-#
-#        set_target_properties(${target_name} PROPERTIES COMPILER ${compiler})
-#
-#        target_compile_options(${target_name} PRIVATE
-#                -O1
-#                -S -emit-llvm
-#                -o ${target_name}_instr.ll
-#                -fsanitize=thread
-#                "SHELL:-mllvm -tsan-use-escape-analysis-global"
-#                "SHELL:-mllvm -debug-only=ea,tsan-ea,tsan"
-#                -Wno-unused-command-line-argument
-#                -Wno-return-stack-address
-#                -Xclang -disable-O0-optnone
-#        )
-#endfunction()
+
+        add_executable(${target_name} ${source_file})
+
+        set_target_properties(${target_name} PROPERTIES COMPILER ${compiler})
+
+        target_compile_options(${target_name} PRIVATE
+                -O0
+                -S -emit-llvm
+                -o ${target_name}_instr.ll
+                -fsanitize=thread
+                "SHELL:-mllvm -tsan-use-escape-analysis-global"
+                "SHELL:-mllvm -tsan-use-lock-ownership"
+                "SHELL:-mllvm -debug-only=ea,tsan-ea,tsan"
+                -Wno-unused-command-line-argument
+                -Wno-return-stack-address
+                -Xclang -disable-O0-optnone
+        )
+endfunction()
 
 #"SHELL:-mllvm -debug-only=tsan,tsan-ea,ea"
 #add_tsan_target(TSanTestCPP TSanTest.cpp)
-#add_tsan_target(TSanTestC TSanTest.c)
+add_tsan_target(TSanTestC TSanTest.c)
 
 #-S -passes=mem2reg EscapeAnalysisTest.ll
 #-mllvm -stats
