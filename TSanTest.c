@@ -27,3 +27,10 @@ int wrapping() {
   unlockWrapper();
   return GV;
 }
+
+int main(void) {
+    wrapping();
+    simple();
+    printf("Hello, World!\n");
+    return 0;
+}
