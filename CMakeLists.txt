@@ -48,7 +48,7 @@ function(add_lock_ownership_target target_name source_file
 #                -passes=mem2reg
                 COMMAND ${OPT_EXECUTABLE}
                 -S -passes='print<${analysis_pass}>'
-                -debug-only=ea
+                -debug-only=${analysis_pass}
                 ${target_name}_mem2reg.ll -disable-output
                 DEPENDS ${target_name}.ll
                 COMMENT "Running ${analysis_pass} Printer"
@@ -71,7 +71,7 @@ endfunction()
 
 add_lock_ownership_target(
         LockOwnershipTest LockOwnershipTest.c
-        lock-ownership -tsan-use-escape-analysis-global)
+        lock-ownership -tsan-use-lock-ownership)
 
 ####################################################################################
 
