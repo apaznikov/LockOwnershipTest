@@ -42,6 +42,7 @@ function(add_lock_ownership_target target_name source_file
         )
 
         add_custom_command(TARGET ${target_name} POST_BUILD
+                COMMAND rm -f st_summary.txt
                 COMMAND ${OPT_EXECUTABLE}
                 -S ${target_name}.ll
                 -o ${target_name}_mem2reg.ll
